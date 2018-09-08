@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.alvin.mynotesapp">
     
-    <permission android:name="com.alvin.mynotesap.READ_DATABASE" android:protectionLevel="normal"/>
+    <permission android:name="com.alvin.mynotesapp.READ_DATABASE" android:protectionLevel="normal"/>
     <permission android:name="com.alvin.mynotesapp.WRITE_DATABASE" android:protectionLevel="normal"/>
 
     <application

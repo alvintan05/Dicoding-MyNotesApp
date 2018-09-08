@@ -24,24 +24,26 @@ import static com.alvin.dicodingnotesapp.db.DatabaseContract.getColumnString;
 
 public class DicodingNotesAdapter extends CursorAdapter {
 
-    @BindView(R.id.tv_item_date)
-    TextView tvDate;
-
-    @BindView(R.id.tv_item_title)
-    TextView tvTitle;
-
-    @BindView(R.id.tv_item_description)
-    TextView tvDescription;
+//    @BindView(R.id.tv_item_date)
+//    TextView tvDate;
+//
+//    @BindView(R.id.tv_item_title)
+//    TextView tvTitle;
+//
+//    @BindView(R.id.tv_item_description)
+//    TextView tvDescription;
 
     public DicodingNotesAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
     }
 
+
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_dicoding_note, parent, false);
+    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_dicoding_note, viewGroup, false);
         return view;
     }
+
 
     @Override
     public Cursor getCursor() {
@@ -51,7 +53,10 @@ public class DicodingNotesAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         if (cursor!= null) {
-            ButterKnife.bind(this, view);
+//            ButterKnife.bind(this, view);
+            TextView tvTitle = (TextView)view.findViewById(R.id.tv_item_title);
+            TextView tvDate = (TextView)view.findViewById(R.id.tv_item_date);
+            TextView tvDescription = (TextView)view.findViewById(R.id.tv_item_description);
 
             tvTitle.setText(getColumnString(cursor, TITLE));
             tvDescription.setText(getColumnString(cursor, DESCRIPTION));
