@@ -1,11 +1,11 @@
-package com.alvin.mynotesapp.db;
+package com.alvin.dicodingnotesapp.db;
 
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Created by Alvin Tandiardi on 23/08/2018.
+ * Created by Alvin Tandiardi on 02/09/2018.
  */
 
 public class DatabaseContract {

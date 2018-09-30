@@ -1,7 +1,10 @@
 package com.alvin.mynotesapp;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +17,11 @@ import android.widget.EditText;
 
 import com.alvin.mynotesapp.db.NoteHelper;
 import com.alvin.mynotesapp.entity.Note;
+
+import static com.alvin.mynotesapp.db.DatabaseContract.CONTENT_URI;
+import static com.alvin.mynotesapp.db.DatabaseContract.NoteColumns.DATE;
+import static com.alvin.mynotesapp.db.DatabaseContract.NoteColumns.DESCRIPTION;
+import static com.alvin.mynotesapp.db.DatabaseContract.NoteColumns.TITLE;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,6 +45,7 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
     public static String EXTRA_POSITION = "extra_position";
 
     private boolean isEdit = false;
+
     public static int REQUEST_ADD = 100;
     public static int RESULT_ADD = 101;
     public static int REQUEST_UPDATE = 200;
@@ -44,7 +53,7 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
     public static int RESULT_DELETE = 301;
 
     private Note note;
-    private int position;
+//    private int position;
     private NoteHelper noteHelper;
 
     @Override
@@ -59,19 +68,29 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
         noteHelper = new NoteHelper(this);
         noteHelper.open();
 
-        note = getIntent().getParcelableExtra(EXTRA_NOTE);
+        Uri uri = getIntent().getData();
 
-        if (note != null) {
-            position = getIntent().getIntExtra(EXTRA_POSITION, 0);
-            isEdit = true;
+        if (uri != null) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+
+            if (cursor != null) {
+
+                if (cursor.moveToFirst()) note = new Note(cursor);
+                cursor.close();
+
+            }
+
         }
 
         String actionBarTitle = null;
         String btnTitle = null;
 
-        if (isEdit) {
+        if (note != null) {
+            isEdit = true;
+
             actionBarTitle = "Ubah";
             btnTitle = "Update";
+
             edtTitle.setText(note.getTitle());
             edtDescription.setText(note.getDescription());
         } else {
@@ -102,6 +121,7 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
         if (id == R.id.btn_submit) {
             String title = edtTitle.getText().toString().trim();
             String description = edtDescription.getText().toString().trim();
+
             boolean isEmpty = false;
 
             /*
@@ -113,27 +133,28 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
             }
 
             if (!isEmpty) {
-                Note newNote = new Note();
-                newNote.setTitle(title);
-                newNote.setDescription(description);
 
-                Intent intent = new Intent();
+                // Gunakan contentvalues untuk menampung data
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TITLE, title);
+                contentValues.put(DESCRIPTION, description);
 
                 /*
                 Jika merupakan edit setresultnya UPDATE, dan jika bukan maka setresultnya ADD
                 */
 
                 if (isEdit) {
-                    newNote.setDate(note.getDate());
-                    newNote.setId(note.getId());
-                    noteHelper.update(newNote);
 
-                    intent.putExtra(EXTRA_POSITION, position);
-                    setResult(RESULT_UPDATE, intent);
+                    getContentResolver().update(getIntent().getData(), contentValues, null, null);
+
+                    setResult(RESULT_UPDATE);
                     finish();
                 } else {
-                    newNote.setDate(getCurrentDate());
-                    noteHelper.insert(newNote);
+
+                    contentValues.put(DATE, getCurrentDate());
+
+                    getContentResolver().insert(CONTENT_URI, contentValues);
+
                     setResult(RESULT_ADD);
                     finish();
                 }
@@ -197,10 +218,8 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
                         if (isDialogClose) {
                             finish();
                         } else {
-                            noteHelper.delete(note.getId());
-                            Intent intent = new Intent();
-                            intent.putExtra(EXTRA_POSITION, position);
-                            setResult(RESULT_DELETE, intent);
+                            getContentResolver().delete(getIntent().getData(), null, null);
+                            setResult(RESULT_DELETE, null);
                             finish();
                         }
                     }
